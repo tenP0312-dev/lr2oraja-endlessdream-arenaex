@@ -6,6 +6,7 @@ import static bms.player.beatoraja.SystemSoundManager.SoundType.*;
 import java.nio.file.*;
 
 import bms.player.beatoraja.arena.client.ArenaBar;
+import bms.player.beatoraja.arena.bmsir.BMSIRArenaClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.stream.IntStream;
@@ -335,6 +336,10 @@ public final class MusicSelector extends MainState {
 	}
 	
 	public void select(Bar current) {
+		if (BMSIRArenaClient.isSelectionBlocked() && !BMSIRArenaClient.isNominationOpen()) {
+			ImGuiNotify.info("Arenaの対戦準備中です。次の通常選曲はできません", 3000);
+			return;
+		}
 		if (current instanceof DirectoryBar dirbar) {
 			if (manager.updateBar(dirbar)) {
 				play(FOLDER_OPEN);
@@ -342,6 +347,16 @@ public final class MusicSelector extends MainState {
 			execute(MusicSelectCommand.RESET_REPLAY);
 		} else {
 			play = BMSPlayerMode.PLAY;
+		}
+	}
+
+	public void readArenaChart(SongData song, ArenaBar current) {
+		selectedreplay = -1;
+		play = BMSPlayerMode.PLAY;
+		try {
+			readChart(song, current);
+		} finally {
+			play = null;
 		}
 	}
 
@@ -674,6 +689,14 @@ public final class MusicSelector extends MainState {
 	}
 
 	public void selectSong(BMSPlayerMode mode) {
+		if (BMSIRArenaClient.isNominationOpen()) {
+			BMSIRArenaClient.requestCurrentChartNomination();
+			return;
+		}
+		if (BMSIRArenaClient.isSelectionBlocked()) {
+			ImGuiNotify.info("Arenaの対戦準備中です。次の通常選曲はできません", 3000);
+			return;
+		}
 		play = mode;
 	}
 

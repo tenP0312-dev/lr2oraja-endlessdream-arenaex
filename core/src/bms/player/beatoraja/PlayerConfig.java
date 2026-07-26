@@ -238,6 +238,14 @@ public final class PlayerConfig {
 	private int musicselectinput = 0;
 
 	private IRConfig[] irconfig;
+
+	/**
+	 * BMS-IR Arena connects only when this startup option is enabled.
+	 * Match entry itself is controlled from the authenticated BMS-IR Web page.
+	 */
+	private boolean bmsirArenaEnabled = false;
+
+	private String bmsirArenaServer = "wss://www.bms-ir.org/new/arena/ws/client";
 	
 	private String twitterConsumerKey;
 
@@ -321,11 +329,11 @@ public final class PlayerConfig {
 	}
 
 	public int getLnmode() {
-		return lnmode;
+		return 0;
 	}
 
 	public void setLnmode(int lnmode) {
-		this.lnmode = lnmode;
+		this.lnmode = 0;
 	}
 
 	public int getRandom2() {
@@ -553,6 +561,27 @@ public final class PlayerConfig {
 
 	public void setIrconfig(IRConfig[] irconfig) {
 		this.irconfig = irconfig;
+	}
+
+	public boolean isBmsirArenaEnabled() {
+		return bmsirArenaEnabled;
+	}
+
+	public void setBmsirArenaEnabled(boolean bmsirArenaEnabled) {
+		this.bmsirArenaEnabled = bmsirArenaEnabled;
+	}
+
+	public String getBmsirArenaServer() {
+		if (bmsirArenaServer == null || bmsirArenaServer.isBlank()) {
+			bmsirArenaServer = "wss://www.bms-ir.org/new/arena/ws/client";
+		}
+		return bmsirArenaServer;
+	}
+
+	public void setBmsirArenaServer(String bmsirArenaServer) {
+		this.bmsirArenaServer = bmsirArenaServer == null || bmsirArenaServer.isBlank()
+				? "wss://www.bms-ir.org/new/arena/ws/client"
+				: bmsirArenaServer.trim();
 	}
 
 	public String getTargetid() {
@@ -860,7 +889,8 @@ public final class PlayerConfig {
 		targetlist = targetlist != null ? targetlist : new String[0];
 		judgetiming = MathUtils.clamp(judgetiming, JUDGETIMING_MIN, JUDGETIMING_MAX);
 		misslayerDuration = MathUtils.clamp(misslayerDuration, 0, 5000);
-		lnmode = MathUtils.clamp(lnmode, 0, 2);
+		// The dedicated BMS-IR client always plays and submits legacy LN.
+		lnmode = 0;
 		keyJudgeWindowRatePerfectGreat = MathUtils.clamp(keyJudgeWindowRatePerfectGreat, 25, 400);
 		keyJudgeWindowRateGreat = MathUtils.clamp(keyJudgeWindowRateGreat, 0, 400);
 		keyJudgeWindowRateGood = MathUtils.clamp(keyJudgeWindowRateGood, 0, 400);
